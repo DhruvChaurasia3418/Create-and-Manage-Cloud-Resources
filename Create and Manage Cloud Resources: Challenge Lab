@@ -1,0 +1,121 @@
+=========> Run these commands first
+
+gcloud auth list
+
+gcloud config list project
+
+
+Task 2
+
+
+gcloud config set compute/zone us-east1-b
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+===========> here you have to write any name in place of [CLUSTER-NAME] 
+
+gcloud container clusters create [CLUSTER-NAME]
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+=========> use same cluster name in this command also
+
+gcloud container clusters get-credentials [CLUSTER-NAME]
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+kubectl create deployment hello-server --image=gcr.io/google-samples/hello-app:2.0
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+========>  write the Port name provided in your lab at <App port number>:
+
+kubectl expose deployment hello-server --type=LoadBalancer --port <App port number>
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+========>  write the Port name provided in your lab at <App port number>:
+
+kubectl expose deployment hello-server --type=LoadBalancer --port <App port number>
+
+
+
+======================================================================================================================================================
+Task 3
+
+
+==============>  run command given in lab first then use these cammands
+  
+------------------------------------------------------------------------------------------------------------------------------------------ 
+  
+  gcloud compute instance-templates create web-server-template \
+          --metadata-from-file startup-script=startup.sh \
+          --network nucleus-vpc \
+          --machine-type g1-small \
+          --region us-east1
+          
+          
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+gcloud compute instance-groups managed create web-server-group \
+          --base-instance-name web-server \
+          --size 2 \
+          --template web-server-template \
+          --region us-east1
+          
+          
+          
+          
+          
+---------------------------------------------------------------------------------------------------------------------------------------------------------              
+ ===============> write firewall name provided in your lab at <web-server-firewall>:
+ 
+ 
+gcloud compute firewall-rules create <web-server-firewall> \
+          --allow tcp:80 \
+          --network nucleus-vpc
+gcloud compute http-health-checks create http-basic-check
+gcloud compute instance-groups managed \
+          set-named-ports web-server-group \
+          --named-ports http:80 \
+          --region us-east1
+          
+          
+------------------------------------------------------------------------------------------------------------------------------------------------------------          
+          
+          
+ gcloud compute backend-services create web-server-backend \
+          --protocol HTTP \
+          --http-health-checks http-basic-check \
+          --global
+gcloud compute backend-services add-backend web-server-backend \
+          --instance-group web-server-group \
+          --instance-group-region us-east1 \
+          --global
+          
+------------------------------------------------------------------------------------------------------------------------------------------------------------          
+          
+          
+ gcloud compute url-maps create web-server-map \
+          --default-service web-server-backend
+gcloud compute target-http-proxies create http-lb-proxy \
+          --url-map web-server-map
+          
+          
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+   
+   
+   gcloud compute forwarding-rules create permit-tcp-rule-261 \
+     --global \
+     --target-http-proxy http-lb-proxy \
+     --ports 80
+          
+----------------------------------------------------------------------------------------------------------------------------------------------------------------          
+          
+gcloud compute forwarding-rules list
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+END of Lab
+
+
+
